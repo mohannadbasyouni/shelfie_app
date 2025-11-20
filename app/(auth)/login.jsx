@@ -10,7 +10,6 @@ import ThemedText from '../../components/ThemedText'
 import Spacer from '../../components/Spacer'
 import ThemedButton from '../../components/ThemedButton'
 import ThemedTextInput from '../../components/ThemedTextInput'
-import ThemedLoader from '../../components/ThemedLoader'
 
 const Login = () => {
   const [email, setEmail] = useState('')

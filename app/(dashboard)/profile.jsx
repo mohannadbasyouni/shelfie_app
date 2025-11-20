@@ -18,7 +18,7 @@ const Profile = () => {
       </ThemedText>
       <Spacer />
 
-      <ThemedText>Time to start reading some books...</ThemedText>
+      <ThemedText>Time to read some books...</ThemedText>
       <Spacer />
 
       <ThemedButton onPress={logout}>

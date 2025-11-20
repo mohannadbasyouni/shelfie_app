@@ -4,7 +4,6 @@ import { Colors } from "../../constants/Colors"
 import { Ionicons } from '@expo/vector-icons';
 import UserOnly from "../../components/auth/UserOnly";
 
-
 const DashboardLayout = () => {
     const colorScheme = useColorScheme()
     const theme = Colors[colorScheme] ?? Colors.light
@@ -51,8 +50,12 @@ const DashboardLayout = () => {
               name={ focused ? 'create' : 'create-outline'}
               color={ focused ? theme.iconColorFocused : theme.iconColor }
             />
-          ) }}
+          )}}
         /> 
+        <Tabs.Screen
+          name="books/[id]"
+          options={{ href: null }}
+        />
         </Tabs>
       </UserOnly>
   )

@@ -2,7 +2,7 @@ import { createContext, useEffect , useState } from 'react'
 import { account } from '../lib/appwrite'
 import { ID } from 'react-native-appwrite'
 
-export const userContext = createContext()
+export const UserContext = createContext()
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -47,8 +47,8 @@ export function UserProvider({ children }) {
   }, [])
 
   return (
-    <userContext.Provider value={{ user, login, register, logout, authChecked }}>
+    <UserContext.Provider value={{ user, login, register, logout, authChecked }}>
       {children}
-    </userContext.Provider>
+    </UserContext.Provider>
   )
 }  
