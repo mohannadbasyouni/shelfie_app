@@ -1,8 +1,8 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard } from 
+import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard } from
  'react-native'
 import { useState } from 'react'
-import { useBooks } from '../../hooks/useBooks'
 import { useRouter} from 'expo-router'
+import { useBooksStore } from '../../hooks/useBooksStore'
 
 import Spacer from '../../components/Spacer'
 import ThemedText from '../../components/ThemedText'
@@ -14,25 +14,27 @@ const Create = () => {
     const [title, setTitle] = useState('')
     const [author, setAuthor] = useState('')
     const [description, setDescription] = useState('')
-    const [loading, setLoading] = useState(false)
-
-    const { createBook } = useBooks()
+    const [submitting, setSubmitting] = useState(false)
+    const { createBook } = useBooksStore()
     const router = useRouter()
 
     const handleSubmit = async () => {
         if (!title.trim() || !author.trim() || !description.trim()) return
 
-        setLoading(true)
+        setSubmitting(true)
 
-        await createBook({ title, author, description })
+        try {
+            await createBook({ title, author, description })
 
-        setTitle('')
-        setAuthor('')
-        setDescription('')
+            setTitle('')
+            setAuthor('')
+            setDescription('')
 
-        router.replace('/books')
+            router.replace('/books')
+        } finally {
+            setSubmitting(false)
+        }
 
-        setLoading(false)
     }
 
     return (
@@ -69,9 +71,9 @@ const Create = () => {
                 />
                 <Spacer />
 
-                <ThemedButton onPress={handleSubmit} disabled={loading}>
+                <ThemedButton onPress={handleSubmit} disabled={submitting}>
                     <Text style={{ color: '#fff' }}>
-                        {loading ? 'Adding...' : 'Add Book'}
+                        {submitting ? 'Adding...' : 'Add Book'}
                     </Text>
                 </ThemedButton>
 

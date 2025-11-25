@@ -1,8 +1,8 @@
 import { StyleSheet, Text } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { useBooks } from '../../../hooks/useBooks'
 import { Colors } from '../../../constants/Colors'
+import { useBooksStore } from '../../../hooks/useBooksStore'
 
 import Spacer from '../../../components/Spacer'
 import ThemedText from '../../../components/ThemedText'
@@ -15,7 +15,7 @@ const BookDetails = () => {
   const [book, setBook] = useState(null)
 
   const { id } = useLocalSearchParams()
-  const { fetchBooksById, deleteBook } = useBooks()
+  const { fetchBooksById, deleteBook } = useBooksStore()
   const router = useRouter()
 
   const handleDelete = async () => {

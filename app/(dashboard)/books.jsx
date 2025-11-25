@@ -1,7 +1,8 @@
 import { StyleSheet, FlatList, Pressable } from 'react-native'
-import { useBooks } from '../../hooks/useBooks'
 import { Colors } from '../../constants/Colors'
 import { useRouter } from 'expo-router'
+
+import { useBooksStore } from '../../hooks/useBooksStore'
 
 import Spacer from '../../components/Spacer'
 import ThemedText from '../../components/ThemedText'
@@ -10,7 +11,7 @@ import ThemedCard from '../../components/ThemedCard'
 
 
 const Books = () => {
-  const { books } = useBooks()
+  const { books } = useBooksStore()
   const router = useRouter()
 
   return (
