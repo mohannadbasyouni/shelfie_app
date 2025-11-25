@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { create } from 'zustand'
+import { shallow } from 'zustand/shallow'
 import { ID, Permission, Query, Role } from 'react-native-appwrite'
 
 import { databases, client } from '../lib/appwrite'
@@ -8,13 +9,12 @@ import { useUser } from './useUser'
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID
 
-let unsubscribeFromBooks = null
-
 const useBooksStoreBase = create((set, get) => ({
   books: [],
   loading: false,
   error: null,
   initializedForUser: null,
+  unsubscribe: null,
   fetchBooks: async (userId) => {
     if (!userId) return
 
@@ -35,28 +35,27 @@ const useBooksStoreBase = create((set, get) => ({
     }
   },
   ensureBooksSync: async (userId) => {
-    const currentUserId = get().initializedForUser
+    const { initializedForUser, unsubscribe } = get()
 
     if (!userId) {
-      if (unsubscribeFromBooks) {
-        unsubscribeFromBooks()
-        unsubscribeFromBooks = null
+      if (unsubscribe) {
+        unsubscribe()
       }
 
-      set({ books: [], initializedForUser: null })
+      set({ books: [], initializedForUser: null, unsubscribe: null })
       return
     }
 
-    if (currentUserId === userId) return
+    if (initializedForUser === userId) return
 
-    if (unsubscribeFromBooks) {
-      unsubscribeFromBooks()
-      unsubscribeFromBooks = null
+    if (unsubscribe) {
+      unsubscribe()
     }
 
-    set({ initializedForUser: userId })
+    set({ initializedForUser: userId, unsubscribe: null })
     await get().fetchBooks(userId)
-    unsubscribeFromBooks = get().subscribeToBooks(userId)
+    const nextUnsubscribe = get().subscribeToBooks(userId)
+    set({ unsubscribe: nextUnsubscribe })
   },
   fetchBooksById: async (id) => {
     try {
@@ -120,8 +119,7 @@ const useBooksStoreBase = create((set, get) => ({
     if (!userId) return undefined
 
     const channel = `databases.${DATABASE_ID}.collections.${COLLECTION_ID}.documents`
-
-    return client.subscribe(channel, (response) => {
+    const handleResponse = (response) => {
       const { payload, events } = response
       const belongsToUser = payload?.userId === userId
 
@@ -131,10 +129,20 @@ const useBooksStoreBase = create((set, get) => ({
         set((state) => ({ books: [...state.books, payload] }))
       }
 
+      if (events.some((event) => event.includes('update'))) {
+        set((state) => ({
+          books: state.books.map((book) => (book.$id === payload.$id ? payload : book))
+        }))
+      }
+
       if (events.some((event) => event.includes('delete'))) {
         set((state) => ({ books: state.books.filter((book) => book.$id !== payload.$id) }))
       }
-    })
+    }
+
+    // Appwrite Realtime enforces document-level permissions, so only documents readable
+    // by the current user will be delivered even though the channel is collection-wide.
+    return client.subscribe(channel, handleResponse)
   },
   clearBooks: () => set({ books: [] })
 }))
@@ -142,18 +150,32 @@ const useBooksStoreBase = create((set, get) => ({
 export function useBooksStore() {
   const { user } = useUser()
 
-  const books = useBooksStoreBase((state) => state.books)
-  const loading = useBooksStoreBase((state) => state.loading)
-  const error = useBooksStoreBase((state) => state.error)
-  const fetchBooks = useBooksStoreBase((state) => state.fetchBooks)
-  const fetchBooksById = useBooksStoreBase((state) => state.fetchBooksById)
-  const createBook = useBooksStoreBase((state) => state.createBook)
-  const deleteBook = useBooksStoreBase((state) => state.deleteBook)
-  const ensureBooksSync = useBooksStoreBase((state) => state.ensureBooksSync)
+  const {
+    books,
+    loading,
+    error,
+    fetchBooks,
+    fetchBooksById,
+    createBook,
+    deleteBook,
+    ensureBooksSync
+  } = useBooksStoreBase(
+    (state) => ({
+      books: state.books,
+      loading: state.loading,
+      error: state.error,
+      fetchBooks: state.fetchBooks,
+      fetchBooksById: state.fetchBooksById,
+      createBook: state.createBook,
+      deleteBook: state.deleteBook,
+      ensureBooksSync: state.ensureBooksSync
+    }),
+    shallow
+  )
 
   useEffect(() => {
     ensureBooksSync(user?.$id)
-  }, [user?.$id, ensureBooksSync])
+  }, [user?.$id])
 
   return {
     books,

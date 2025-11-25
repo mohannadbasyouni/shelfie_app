@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, Keyboard } from
+import { Alert, StyleSheet, Text, TouchableWithoutFeedback, Keyboard } from
  'react-native'
 import { useState } from 'react'
 import { useRouter} from 'expo-router'
@@ -31,6 +31,10 @@ const Create = () => {
             setDescription('')
 
             router.replace('/books')
+        } catch (error) {
+            const message = error?.message || 'Failed to create book. Please try again.'
+            Alert.alert('Error', message)
+            console.error('Failed to create book:', error)
         } finally {
             setSubmitting(false)
         }
