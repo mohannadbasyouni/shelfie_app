@@ -8,10 +8,13 @@ import { useUser } from './useUser'
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID
 
-const useBooksStoreBase = create((set) => ({
+let unsubscribeFromBooks = null
+
+const useBooksStoreBase = create((set, get) => ({
   books: [],
   loading: false,
   error: null,
+  initializedForUser: null,
   fetchBooks: async (userId) => {
     if (!userId) return
 
@@ -30,6 +33,30 @@ const useBooksStoreBase = create((set) => ({
     } finally {
       set({ loading: false })
     }
+  },
+  ensureBooksSync: async (userId) => {
+    const currentUserId = get().initializedForUser
+
+    if (!userId) {
+      if (unsubscribeFromBooks) {
+        unsubscribeFromBooks()
+        unsubscribeFromBooks = null
+      }
+
+      set({ books: [], initializedForUser: null })
+      return
+    }
+
+    if (currentUserId === userId) return
+
+    if (unsubscribeFromBooks) {
+      unsubscribeFromBooks()
+      unsubscribeFromBooks = null
+    }
+
+    set({ initializedForUser: userId })
+    await get().fetchBooks(userId)
+    unsubscribeFromBooks = get().subscribeToBooks(userId)
   },
   fetchBooksById: async (id) => {
     try {
@@ -122,23 +149,11 @@ export function useBooksStore() {
   const fetchBooksById = useBooksStoreBase((state) => state.fetchBooksById)
   const createBook = useBooksStoreBase((state) => state.createBook)
   const deleteBook = useBooksStoreBase((state) => state.deleteBook)
-  const subscribeToBooks = useBooksStoreBase((state) => state.subscribeToBooks)
-  const clearBooks = useBooksStoreBase((state) => state.clearBooks)
+  const ensureBooksSync = useBooksStoreBase((state) => state.ensureBooksSync)
 
   useEffect(() => {
-    let unsubscribe
-
-    if (user?.$id) {
-      fetchBooks(user.$id)
-      unsubscribe = subscribeToBooks(user.$id)
-    } else {
-      clearBooks()
-    }
-
-    return () => {
-      if (unsubscribe) unsubscribe()
-    }
-  }, [user?.$id, fetchBooks, subscribeToBooks, clearBooks])
+    ensureBooksSync(user?.$id)
+  }, [user?.$id, ensureBooksSync])
 
   return {
     books,
