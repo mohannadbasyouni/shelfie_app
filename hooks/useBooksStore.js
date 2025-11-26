@@ -139,8 +139,7 @@ const useBooksStoreBase = create((set, get) => ({
     // Appwrite Realtime enforces document-level permissions, so only documents readable
     // by the current user will be delivered even though the channel is collection-wide.
     return client.subscribe(channel, handleResponse)
-  },
-  clearBooks: () => set({ books: [] })
+  }
 }))
 
 export function useBooksStore() {
