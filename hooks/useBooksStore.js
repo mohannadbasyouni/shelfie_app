@@ -172,7 +172,7 @@ export function useBooksStore() {
 
   useEffect(() => {
     ensureBooksSync(user?.$id)
-  }, [user?.$id])
+  }, [user?.$id, ensureBooksSync])
 
   return {
     books,
