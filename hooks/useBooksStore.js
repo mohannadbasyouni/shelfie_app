@@ -91,18 +91,6 @@ const useBooksStoreBase = create((set, get) => ({
         ]
       )
 
-      set((state) => {
-        const alreadyExists = state.books.some((book) => book.$id === newBook.$id)
-
-        if (alreadyExists) {
-          return {
-            books: state.books.map((book) => (book.$id === newBook.$id ? newBook : book))
-          }
-        }
-
-        return { books: [...state.books, newBook] }
-      })
-
       return newBook
     } catch (error) {
       set({ error: error.message })
@@ -120,8 +108,6 @@ const useBooksStoreBase = create((set, get) => ({
         COLLECTION_ID,
         id
       )
-
-      set((state) => ({ books: state.books.filter((book) => book.$id !== id) }))
     } catch (error) {
       set({ error: error.message })
       throw error
