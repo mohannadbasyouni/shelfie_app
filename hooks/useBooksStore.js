@@ -53,9 +53,9 @@ const useBooksStoreBase = create((set, get) => ({
     }
 
     set({ initializedForUser: userId, unsubscribe: null })
-    await get().fetchBooks(userId)
     const nextUnsubscribe = get().subscribeToBooks(userId)
     set({ unsubscribe: nextUnsubscribe })
+    await get().fetchBooks(userId)
   },
   fetchBooksById: async (id) => {
     try {
@@ -127,15 +127,11 @@ const useBooksStoreBase = create((set, get) => ({
 
       if (events.some((event) => event.includes('create'))) {
         set((state) => ({ books: [...state.books, payload] }))
-      }
-
-      if (events.some((event) => event.includes('update'))) {
+      } else if (events.some((event) => event.includes('update'))) {
         set((state) => ({
           books: state.books.map((book) => (book.$id === payload.$id ? payload : book))
         }))
-      }
-
-      if (events.some((event) => event.includes('delete'))) {
+      } else if (events.some((event) => event.includes('delete'))) {
         set((state) => ({ books: state.books.filter((book) => book.$id !== payload.$id) }))
       }
     }
@@ -175,7 +171,7 @@ export function useBooksStore() {
 
   useEffect(() => {
     ensureBooksSync(user?.$id)
-  }, [user?.$id])
+  }, [user?.$id, ensureBooksSync])
 
   return {
     books,
