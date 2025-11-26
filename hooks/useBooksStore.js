@@ -155,28 +155,20 @@ const useBooksStoreBase = create((set, get) => ({
 export function useBooksStore() {
   const { user } = useUser()
 
-  const {
-    books,
-    loading,
-    error,
-    fetchBooks,
-    fetchBooksById,
-    createBook,
-    deleteBook,
-    ensureBooksSync
-  } = useBooksStoreBase(
+  const { books, loading, error } = useBooksStoreBase(
     (state) => ({
       books: state.books,
       loading: state.loading,
-      error: state.error,
-      fetchBooks: state.fetchBooks,
-      fetchBooksById: state.fetchBooksById,
-      createBook: state.createBook,
-      deleteBook: state.deleteBook,
-      ensureBooksSync: state.ensureBooksSync
+      error: state.error
     }),
     shallow
   )
+
+  const fetchBooks = useBooksStoreBase((state) => state.fetchBooks)
+  const fetchBooksById = useBooksStoreBase((state) => state.fetchBooksById)
+  const createBook = useBooksStoreBase((state) => state.createBook)
+  const deleteBook = useBooksStoreBase((state) => state.deleteBook)
+  const ensureBooksSync = useBooksStoreBase((state) => state.ensureBooksSync)
 
   useEffect(() => {
     ensureBooksSync(user?.$id)
