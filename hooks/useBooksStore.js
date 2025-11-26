@@ -91,6 +91,18 @@ const useBooksStoreBase = create((set, get) => ({
         ]
       )
 
+      set((state) => {
+        const alreadyExists = state.books.some((book) => book.$id === newBook.$id)
+
+        if (alreadyExists) {
+          return {
+            books: state.books.map((book) => (book.$id === newBook.$id ? newBook : book))
+          }
+        }
+
+        return { books: [...state.books, newBook] }
+      })
+
       return newBook
     } catch (error) {
       set({ error: error.message })
@@ -108,6 +120,8 @@ const useBooksStoreBase = create((set, get) => ({
         COLLECTION_ID,
         id
       )
+
+      set((state) => ({ books: state.books.filter((book) => book.$id !== id) }))
     } catch (error) {
       set({ error: error.message })
       throw error
@@ -126,7 +140,17 @@ const useBooksStoreBase = create((set, get) => ({
       if (!belongsToUser) return
 
       if (events.some((event) => event.includes('create'))) {
-        set((state) => ({ books: [...state.books, payload] }))
+        set((state) => {
+          const alreadyExists = state.books.some((book) => book.$id === payload.$id)
+
+          if (alreadyExists) {
+            return {
+              books: state.books.map((book) => (book.$id === payload.$id ? payload : book))
+            }
+          }
+
+          return { books: [...state.books, payload] }
+        })
       } else if (events.some((event) => event.includes('update'))) {
         set((state) => ({
           books: state.books.map((book) => (book.$id === payload.$id ? payload : book))
@@ -170,7 +194,7 @@ export function useBooksStore() {
 
   useEffect(() => {
     ensureBooksSync(user?.$id)
-  }, [user?.$id, ensureBooksSync])
+  }, [user?.$id])
 
   return {
     books,
