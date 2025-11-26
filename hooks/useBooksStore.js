@@ -155,12 +155,8 @@ const useBooksStoreBase = create((set, get) => ({
 export function useBooksStore() {
   const { user } = useUser()
 
-  const { books, loading, error } = useBooksStoreBase(
-    (state) => ({
-      books: state.books,
-      loading: state.loading,
-      error: state.error
-    }),
+  const [books, loading, error] = useBooksStoreBase(
+    (state) => [state.books, state.loading, state.error],
     shallow
   )
 
@@ -172,7 +168,7 @@ export function useBooksStore() {
 
   useEffect(() => {
     ensureBooksSync(user?.$id)
-  }, [user?.$id, ensureBooksSync])
+  }, [ensureBooksSync, user?.$id])
 
   return {
     books,
