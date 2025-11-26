@@ -1,7 +1,6 @@
-import { Alert, StyleSheet, Text, TouchableWithoutFeedback, Keyboard } from
- 'react-native'
+import { Alert, StyleSheet, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { useState } from 'react'
-import { useRouter} from 'expo-router'
+import { useRouter } from 'expo-router'
 import { useBooksStore } from '../../hooks/useBooksStore'
 
 import Spacer from '../../components/Spacer'

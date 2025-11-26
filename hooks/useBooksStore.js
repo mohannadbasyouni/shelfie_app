@@ -58,6 +58,8 @@ const useBooksStoreBase = create((set, get) => ({
     await get().fetchBooks(userId)
   },
   fetchBooksById: async (id) => {
+    set({ error: null })
+
     try {
       const response = await databases.getDocument(
         DATABASE_ID,
@@ -106,8 +108,6 @@ const useBooksStoreBase = create((set, get) => ({
         COLLECTION_ID,
         id
       )
-
-      set((state) => ({ books: state.books.filter((book) => book.$id !== id) }))
     } catch (error) {
       set({ error: error.message })
       throw error
