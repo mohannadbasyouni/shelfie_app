@@ -9,7 +9,7 @@ import ThemedText from '../../../components/ThemedText'
 import ThemedView from '../../../components/ThemedView'
 import ThemedCard from '../../../components/ThemedCard'
 import ThemedButton from '../../../components/ThemedButton'
-import Themedloader from '../../../components/ThemedLoader'
+import ThemedLoader from '../../../components/ThemedLoader'
 
 const BookDetails = () => {
   const [book, setBook] = useState(null)
@@ -36,7 +36,7 @@ const BookDetails = () => {
     if (!book) {
         return (
             <ThemedView safe={true} style={styles.container}>
-                <Themedloader />
+                <ThemedLoader />
             </ThemedView>
         )
     }
