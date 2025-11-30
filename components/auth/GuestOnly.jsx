@@ -1,10 +1,11 @@
 import { useRouter } from "expo-router"
-import { useUser } from "../../hooks/useUser"
 import { useEffect } from "react"
 import ThemedLoader from "../ThemedLoader"
+import useUserStore from "../../stores/useUserStore"
 
 const GuestOnly = ({ children }) => {
-    const { user, authChecked } = useUser()
+    const user = useUserStore((state) => state.user)
+    const authChecked = useUserStore((state) => state.authChecked)
     const router = useRouter()
 
     useEffect(() => {
