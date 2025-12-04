@@ -5,6 +5,7 @@ import {
   logoutService,
   getUserService,
 } from "../services/authService"
+import useBooksStore from "./useBooksStore"
 
 const useUserStore = create((set, get) => ({
   user: null,
@@ -14,6 +15,11 @@ const useUserStore = create((set, get) => ({
     try {
       const user = await loginService(email, password)
       set({ user })
+
+      const booksStore = useBooksStore.getState()
+      booksStore.fetchBooks(user.$id)
+      booksStore.subscribeToBooks(user.$id)
+
       return user
     } catch (e) {
       throw e
@@ -24,6 +30,11 @@ const useUserStore = create((set, get) => ({
     try {
       const user = await registerService(email, password)
       set({ user })
+
+      const booksStore = useBooksStore.getState()
+      booksStore.fetchBooks(user.$id)
+      booksStore.subscribeToBooks(user.$id)
+
       return user
     } catch (e) {
       throw e
@@ -33,6 +44,10 @@ const useUserStore = create((set, get) => ({
   logout: async () => {
     try {
       await logoutService()
+
+      const booksStore = useBooksStore.getState()
+      booksStore.resetBooks()
+
       set({ user: null })
     } catch (e) {
       throw e
@@ -42,7 +57,12 @@ const useUserStore = create((set, get) => ({
   getInitialUserValue: async () => {
     try {
       const user = await getUserService()
+      console.log("User from Appwrite:", user)
       set({ user })
+
+      const booksStore = useBooksStore.getState()
+      booksStore.fetchBooks(user.$id)
+      booksStore.subscribeToBooks(user.$id)
     } catch (e) {
       set({ user: null })
     } finally {
