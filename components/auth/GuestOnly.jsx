@@ -1,11 +1,15 @@
 import { useRouter } from "expo-router"
-import { useUser } from "../../hooks/useUser"
 import { useEffect } from "react"
 import ThemedLoader from "../ThemedLoader"
+import useUserStore from "../../stores/useUserStore"
 
 const GuestOnly = ({ children }) => {
-    const { user, authChecked } = useUser()
+
+    const user = useUserStore((state) => state.user)
+    const authChecked = useUserStore((state) => state.authChecked)
     const router = useRouter()
+
+    console.log("GuestOnly => user:", user, "authChecked:", authChecked)
 
     useEffect(() => {
         if (authChecked && user !== null) {
@@ -14,9 +18,7 @@ const GuestOnly = ({ children }) => {
     }, [user, authChecked])
 
     if (!authChecked || user) {
-        return (
-            <ThemedLoader />
-        )
+        return <ThemedLoader />
     }
 
     return children
